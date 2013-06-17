@@ -1,0 +1,269 @@
+________________________________________________________________________
+________________________________________________________________________
+
+    PTPro v1.1 
+    Copyright (c) 2006 Richard L Walsh <rich@e-vertise.com>
+
+    PTPro incorporates the following copyrighted material:
+    * libptp2  - Copyright (c) 2001-2005 Mariusz Woloszyn
+    * libusb   - Copyright (c) 2001 Johannes Erdfelt
+
+    PTPro is released under the GNU Public License;
+    see COPYING for the entire text of the license.
+
+________________________________________________________________________
+________________________________________________________________________
+
+  Using PTPro
+  -----------
+
+  * Introduction
+  * Installation
+  * Usage
+  * Changes since v1.0
+  * Bugs
+
+________________________________________________________________________
+
+* Introduction *
+________________________________________________________________________
+
+  PTPro is a commandline utility for retrieving pictures & information
+  from your PTP (Picture Transfer Protocol) based digital camera.
+  PTPro uses only generic PTP features so it should work with most
+  cameras produced in the last few years but it will be unable to
+  exploit any special features they may have.
+
+________________________________________________________________________
+
+* Installation *
+________________________________________________________________________
+
+  PTPRO.EXE    - can go in any convenient directory
+
+  USBCALLS.DLL - should be placed in either the same directory as
+                 ptpro.exe or in a directory along your LIBPATH
+
+  USBRESMG.SYS - put into x:\os2\boot and add this line to config.sys
+                    DEVICE=X:\OS2\BOOT\USBRESMG.SYS
+                 Note:  if you have an older copy of usbresmg.sys,
+                 replace it with the enclosed version.
+
+  Not included but required:
+  LIBC061.DLL  - if you don't have this already, obtain it from:
+                   ftp://ftp.netlabs.org/pub/gcc/libc-0.6.1-csd1.zip
+                 Place the 3 files from the archive into a directory
+                 along your LIBPATH since many apps use this dll.
+
+________________________________________________________________________
+
+* Usage *
+________________________________________________________________________
+
+  All commandline options must be specified individually, each with a
+  leading hyphen ('-'), e.g.:  ptpro -l -v  _not_  ptpro -lv
+  Commandline options are case-sensitive.
+
+
+  First use
+  =========
+  After attaching your camera, you may have to set it to "playback"
+  mode (e.g. on my Canon, there's a switch on the back).  Then, enter
+  this at the commandline:  ptpro -d   You should see a display like
+  this:
+
+        Device list
+        ===========
+        Bus  Device  VendorID  ProductID  Device
+         1      2     0x04A9    0x30FD    Canon PowerShot A610
+
+  If instead you get "Found no PTP devices", try:  ptpro -d -D*
+  This will list all USB devices and force the app to talk to each
+  one as though it were a PTP device.  If your camera is recognized
+  this way, note the device number associated with it.  You will have
+  to add '-D' and the number to all subsequent commands to force PTPro
+  to talk to your camera, e.g.:  ptpro -D2 [etc...]
+
+
+  Normal use
+  ==========
+  Entering ptpro without any parameters will give you a complete
+  list of commands.  Below is a description of each:
+  
+  
+  List files:  ptpro -l  (that's a lowercase 'L')
+  -----------
+  This displays a listing of all files stored on the camera, e.g.:
+  
+   File list  Canon PowerShot A610
+   =========  ====================
+  
+   Handle      Size     Date     Time   Name
+      7     1721916  2006-01-15  00:52  IMG_0196.JPG
+      8      870851  2006-01-15  00:53  IMG_0197.JPG
+      9     1730758  2006-01-15  00:54  IMG_0198.JPG
+     10     1699399  2006-01-15  00:56  IMG_0199.JPG
+     11     1126038  2006-01-15  23:54  IMG_0200.JPG
+     13     1558298  2006-01-15  23:56  IMG_0201.JPG
+     14     1589410  2006-01-15  23:56  IMG_0202.JPG
+   [etc...]
+  
+  The 'Handle' identifies a file and is needed to retrieve it.  PTPro
+  ignores folders, so there may be gaps in the numbering (e.g. notice
+  that handle 12 is missing - it's a folder, so it was omitted).
+  
+  
+  Save files:  ptpro -f [range] [filename]
+  -----------
+  You can save one or more files to disk, and can optionally rename
+  them by supplying a filename pattern.  If you want to replace an
+  existing file on disk, add the '-r' (replace) option to the command.
+  
+  [range]
+  Range uses the handle numbers obtained from a file listing (see
+  above).  Typically, it's entered as 'first-last' (e.g. '23-54').
+  Note that the hyphen ('-') is required.  To save a single file,
+  just enter a single handle.
+  
+  You can also use an asterisk ('*') instead.  Use a single asterisk
+  to save all files (e.g. ptpro -f *), or use it in a range to start
+  at the first file or end at the last file (e.g. '*-54' or '77-*').
+  
+  [filename]
+  You can specify a path where PTPro should save your files, e.g.
+       ptpro -f * g:\pix\holiday\*
+  
+  You can also have it rename them if you wish.  The characters '*'
+  and '#' have special meanings:
+  
+  '*' copies the file's current name and/or extension.  You can
+      combine '*' with other characters to extend the file's original
+      name, e.g.
+          ptpro -f 12-17 *-cats.*
+  
+  '#' inserts an ascending sequence number into the name.  Follow it
+      with the value you want to start at, e.g.
+          ptpro -f 12-17 cats#0097.*
+      Note the leading zeroes:  PTPro always outputs at least as many
+      digits as you entered.  Here, you'll get a four-digit number.
+      Use this to ensure filenames are sorted in the correct order.
+  
+  If your camera supplies the date & time a picture was taken, it will
+  be used as the file's creation date & last-write date.  Otherwise,
+  the current date & time will be used.
+  
+  
+  Save thumbnails:  ptpro -t [range] [filename]
+  ----------------
+  Saving thumbnails is identical to saving full-sized picture files.
+  Of course, your camera must support the ability to retrieve them.
+  
+  
+  Erase files:  ptpro -e [range]
+  ------------
+  Erasing files requires a range of handles like saving them does.
+  Please be careful:  you will not be prompted to confirm deletion!
+  Note:  many cameras will hang when asked to delete files.  If this
+  happens, turn the camera off then on to get it working again.
+  
+  
+  Get file info:  ptpro -i [range]
+  --------------
+  This provides extended information about a given file.  For a
+  picture file, it shows the size (in pixels) of the picture and
+  its thumbnail, their formats, write-protection status, etc.  For
+  non-picture objects, additional info will help identify what the
+  handle refers to.
+  
+  Since the listing for each handle is fairly long, you'll probably
+  want to retrieve info for one handle at a time.
+  
+  
+  Other options
+  -------------
+  -c  Displays info about your camera such as its serial number, the
+      format(s) it uses to save pictures, and the formats it uses for
+      other files it creates.
+  
+  -s  Shows info about your camera's storage (memory) capabilities,
+      both built-in and external (i.e. flash memory card).
+  
+  -o  List the operations or functions your camera can perform - PTPro
+      supports a subset of these.  In addition to operations required
+      by the PTP standard, many manufacturers have added their own
+      features.  Since most of these are undocumented, they may be
+      identified in the listing as 'unknown'.
+  
+  -p  Lists the names of the properties or settings for your camera.
+      Since many of these are proprietary, their names may be unknown.
+  
+  -g  Get or set the value of a specific property.
+      To get a property, use:
+          ptpro -g [number]  where [number] was one listed using '-p'
+      To set a property, use:
+          ptpro -g [number] -V=[xxx]  where [xxx] is the new value
+  
+  -R  This is supposed to reset the camera in case it hangs.  Whether
+      it actually does anything remains to be seen (when in doubt,
+      turn the camera off, then back on).
+  
+  -v  When entered as '-v' or '-v1', displays error messages generated
+      by libptp2 and libusb (two libraries that PTPro uses).
+      When entered as '-v2', provides debugging messages from PTPro
+      and its libraries.
+
+________________________________________________________________________
+
+* Changes since v1.0 *
+________________________________________________________________________
+
+  - Ptpro.exe no longer uses a built-in copy of the usbcalls library
+    because of incompatibilities with newer versions of usbresmg.sys.
+    It now relies on usbcalls.dll.
+
+  - The '-F' (force) and '--dev' (device) options have been replaced
+    by '-D'.  When you use '-D' to specify a device (e.g. "-D2"), ptpro
+    assumes you want to force it to treat the device as a PTP camera.
+
+  - The '--val' (property value) option has been given a single-letter
+    equivalent:  '-V'.
+
+  - The '-h' (help) option is no longer needed but is still accepted.
+    Running ptpro with no parameters will display the help screen.
+
+________________________________________________________________________
+
+* Bugs *
+________________________________________________________________________
+
+  Known Issue
+  -----------
+  Owners of Canon A70 & A75 cameras should expect problems when using
+  Cameraderie to delete photos from the camera.  They may have to
+  restart the program and/or turn the camera off & on to clear errors.
+  The same issue is known to occur with other cameras as well.
+
+
+  Troubleshooting
+  ---------------
+  If your camera is not recognized, try the steps described above in
+  "First Use".  If it is recognized but you can't get a listing of
+  files, try this "undocumented" command:  ptpro -H
+
+  This will give you a listing of file handles (the number the camera
+  assigns to each file or folder).  Select handles from the middle
+  and end of the list and use them with the '-i' command (get info),
+  If you can get info for a photo, you can probably save it to file.
+
+  Email information about what works - and what doesn't - to the
+  address below.
+
+________________________________________________________________________
+________________________________________________________________________
+
+  Rich Walsh <rich@e-vertise.com>
+  Ft Myers, FL
+
+  September 17, 2006
+________________________________________________________________________
+
