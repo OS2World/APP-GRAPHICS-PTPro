@@ -21,6 +21,11 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+ * Copyright (c) 2015, bww bitwise works GmbH
+ *
+ * 2015-01-22 Silvan Scherrer version 1.1.1
+ *            enhanced UsbQueryDeviceReport to 4096 byte 
+ *            removed parameter 1 from CloseSession
  */
 /***************************************************************************/
 /*
@@ -430,7 +435,7 @@ CAMDevice   SelectCamera( OPTS * pOpts, CAMCameraListPtr pList)
 void help()
 {
     printf(
-    "PTPro v1.1 - a PTP camera utility - Copyright (c) 2006 RL Walsh et al.\n"
+    "PTPro v1.1.1 a PTP camera utility - Copyright (c) 2006 RL Walsh et al.\n"
     "\n"
     "Usage:  PTPro -Option [-Option ...] [Save-as Filename]\n"
     "  -l, --list-files             List all files & their handles\n"

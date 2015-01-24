@@ -20,6 +20,10 @@
  *  along with this program; if not, write to the Free Software
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
  *
+ * Copyright (c) 2015, bww bitwise works GmbH
+ *
+ * 2015-01-22 Silvan Scherrer CloseSession remove parameter 1
+ *
  */
 /***************************************************************************/
 
@@ -398,7 +402,7 @@ static uint32_t CloseSession( CAMCameraPtr pCam)
     CAMCmdCnr       cnr;
 
     memset( &cnr, 0, sizeof(CAMCmdCnr));
-    cnr.length = CAMCNR_CALCSIZE(1);
+    cnr.length = CAMCNR_CALCSIZE(0);
     opcode     = PTP_OC_CloseSession;
 
     if ((rtn = WriteCommand( pCam, &cnr, opcode)) == PTP_RC_OK &&
